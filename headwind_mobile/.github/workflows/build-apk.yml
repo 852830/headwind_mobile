@@ -19,7 +19,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.24.5'
 
       - name: Create Android scaffold
         run: cd headwind_mobile && flutter create --platforms=android --org com.headwind .
@@ -37,8 +37,23 @@ jobs:
           p = 'android/app/src/main/AndroidManifest.xml'
           s = open(p, encoding='utf-8').read()
           if 'android.permission.CAMERA' not in s:
-              s = s.replace('<application', '<uses-permission android:name="android.permission.CAMERA"/>\n    <uses-permission android:name="android.permission.INTERNET"/>\n    <application', 1)
+              s = s.replace('<application', '<uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <application', 1)
           open(p, 'w', encoding='utf-8').write(s)
+          EOF
+
+      - name: Patch isar namespace for AGP 8
+        run: |
+          cd headwind_mobile
+          python3 - <<'EOF'
+          import pathlib
+          p = pathlib.Path.home() / '.pub-cache' / 'hosted' / 'pub.dev' / 'isar_flutter_libs-3.1.0+1' / 'android' / 'build.gradle'
+          s = p.read_text(encoding='utf-8')
+          if 'namespace' not in s:
+              s = s.replace('android {', 'android {\n    namespace "dev.isar.isar_flutter_libs"', 1)
+              s = s.replace('compileSdkVersion 30', 'compileSdkVersion 34')
+          p.write_text(s, encoding='utf-8')
           EOF
 
       - name: Build release APK
