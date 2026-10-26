@@ -1,0 +1,58 @@
+name: Build APK
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+
+      - name: Create Android scaffold
+        run: cd headwind_mobile && flutter create --platforms=android --org com.headwind .
+
+      - name: Get dependencies
+        run: cd headwind_mobile && flutter pub get
+
+      - name: Generate Isar code
+        run: cd headwind_mobile && dart run build_runner build --delete-conflicting-outputs
+
+      - name: Add camera & network permissions
+        run: |
+          cd headwind_mobile
+          python3 - <<'EOF'
+          p = 'android/app/src/main/AndroidManifest.xml'
+          s = open(p, encoding='utf-8').read()
+          if 'android.permission.CAMERA' not in s:
+              s = s.replace('<application', '<uses-permission android:name="android.permission.CAMERA"/>\n    <uses-permission android:name="android.permission.INTERNET"/>\n    <application', 1)
+          open(p, 'w', encoding='utf-8').write(s)
+          EOF
+
+      - name: Build release APK
+        run: cd headwind_mobile && flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HeadWind管家APK
+          path: headwind_mobile/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: HeadWind管家 v1.0.0
+          files: headwind_mobile/build/app/outputs/flutter-apk/app-release.apk
