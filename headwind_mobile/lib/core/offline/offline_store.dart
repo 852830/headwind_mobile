@@ -18,15 +18,15 @@ class OfflineStoreService {
     }
   }
 
-  Future<void> cacheAlert(CacheAlert a) => isar.writeTxn(() => isar.alerts.put(a));
+  Future<void> cacheAlert(CacheAlert a) => isar.writeTxn(() => isar.cacheAlerts.put(a));
 
   Future<void> updateAlertConfirmed(String alertId) async {
-    final item = await isar.alerts.filter().alertIdEqualTo(alertId).findFirst();
+    final item = await isar.cacheAlerts.filter().alertIdEqualTo(alertId).findFirst();
     if (item != null) {
       item.confirmed = true;
-      await isar.writeTxn(() => isar.alerts.put(item));
+      await isar.writeTxn(() => isar.cacheAlerts.put(item));
     }
   }
 
-  Future<List<CacheJob>> getCachedJobs() => isar.jobs.where().findAll();
+  Future<List<CacheJob>> getCachedJobs() => isar.cacheJobs.where().findAll();
 }

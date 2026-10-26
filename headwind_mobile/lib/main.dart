@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/constants.dart';
 import 'core/models.dart';
 import 'core/offline/offline_store.dart';
-import 'core/auth/mobile_auth_service.dart';
 import 'provider/auth_state.dart';
 import 'provider/app_state.dart';
 import 'pages/splash_page.dart';
@@ -20,7 +20,8 @@ Future<void> main() async {
   if (savedUrl != null && savedUrl.isNotEmpty) {
     AppConstants.serverBaseUrl = savedUrl;
   }
-  final isar = await Isar.open([SnRecordSchema, CacheJobSchema, CacheAlertSchema]);
+  final dir = await getApplicationDocumentsDirectory();
+  final isar = await Isar.open([SnRecordSchema, CacheJobSchema, CacheAlertSchema], directory: dir.path);
   runApp(HeadwindApp(prefs: prefs, offline: OfflineStoreService(isar)));
 }
 
