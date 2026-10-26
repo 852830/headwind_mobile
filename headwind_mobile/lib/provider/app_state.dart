@@ -46,8 +46,8 @@ class AppState extends ChangeNotifier {
         machineId: data['machineId']?.toString() ?? '',
         content: data['content']?.toString() ?? '',
         confirmed: data['confirmed'] == true,
-        ts: DateTime.tryParse(data['ts']?.toString() ?? '') ?? DateTime.now(),
       );
+      a.ts = DateTime.tryParse(data['ts']?.toString() ?? '') ?? DateTime.now();
       alerts.insert(0, a);
       if (alerts.length > 50) alerts.removeRange(50, alerts.length);
       offline.cacheAlert(a);

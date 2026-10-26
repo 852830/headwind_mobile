@@ -13,8 +13,8 @@ class SnRecord {
   late DateTime ts;
   bool synced = false;
 
-  SnRecord({String? recordId, required this.code, required this.actionType, required this.ts, this.synced = false}) {
-    this.recordId = recordId ?? const Uuid().v4();
+  SnRecord({required this.code, required this.actionType, required this.ts, this.synced = false}) {
+    recordId = const Uuid().v4();
   }
 }
 
@@ -26,8 +26,9 @@ class CacheJob {
   late String status;
   late DateTime createTime;
 
-  CacheJob({required this.jobId, required this.machineId, required this.status, DateTime? createTime})
-      : createTime = createTime ?? DateTime.now();
+  CacheJob({required this.jobId, required this.machineId, required this.status}) {
+    createTime = DateTime.now();
+  }
 }
 
 @collection
@@ -39,6 +40,7 @@ class CacheAlert {
   bool confirmed = false;
   late DateTime ts;
 
-  CacheAlert({required this.alertId, required this.machineId, required this.content, this.confirmed = false, DateTime? ts})
-      : ts = ts ?? DateTime.now();
+  CacheAlert({required this.alertId, required this.machineId, required this.content, this.confirmed = false}) {
+    ts = DateTime.now();
+  }
 }
